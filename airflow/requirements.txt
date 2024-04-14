@@ -1,0 +1,2 @@
+# requirements to be loaded into the airflow
+pandas==2.1.0

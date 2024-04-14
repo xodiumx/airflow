@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+
+  postgresql:
+    build:
+      dockerfile: ./docker/postgres/Dockerfile
+      context: .
+    volumes:
+      - postgres:/bitnami/postgresql
+    env_file:
+      - ./.env
+    ports:
+      - '5432:5432'
+    networks:
+      - airflow
+
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis:/bitnami
+    networks:
+      - airflow
+
+  airflow-worker:
+    image: bitnami/airflow-worker:latest
+    env_file:
+      - ./.env
+    environment:
+      AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+      AIRFLOW_SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+      AIRFLOW_EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW_DATABASE_NAME: ${AIRFLOW_DATABASE_NAME}
+      AIRFLOW_DATABASE_USERNAME: ${AIRFLOW_DATABASE_USERNAME}
+      AIRFLOW_DATABASE_PASSWORD: ${AIRFLOW_DATABASE_PASSWORD}
+      AIRFLOW_LOAD_EXAMPLES: ${AIRFLOW_LOAD_EXAMPLES}
+      AIRFLOW_WEBSERVER_HOST: ${AIRFLOW_WEBSERVER_HOST}
+      AIRFLOW_WEBSERVER_PORT: ${AIRFLOW_WEBSERVER_PORT}
+    volumes:
+      - ../src:/opt/bitnami/airflow/dags
+      - ../src/dags:/opt/bitnami/airflow/dags
+      - ./:/bitnami/python
+    networks:
+      - airflow
+
+  airflow-scheduler:
+    image: bitnami/airflow-scheduler:latest
+    env_file:
+      - ./.env
+    environment:
+      AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+      AIRFLOW_SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+      AIRFLOW_EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW_DATABASE_NAME: ${AIRFLOW_DATABASE_NAME}
+      AIRFLOW_DATABASE_USERNAME: ${AIRFLOW_DATABASE_USERNAME}
+      AIRFLOW_DATABASE_PASSWORD: ${AIRFLOW_DATABASE_PASSWORD}
+      AIRFLOW_LOAD_EXAMPLES: ${AIRFLOW_LOAD_EXAMPLES}
+      AIRFLOW_WEBSERVER_HOST: ${AIRFLOW_WEBSERVER_HOST}
+      AIRFLOW_WEBSERVER_PORT: ${AIRFLOW_WEBSERVER_PORT}
+    volumes:
+      - ../src:/opt/bitnami/airflow/dags
+      - ../src/dags:/opt/bitnami/airflow/dags
+      - ./:/bitnami/python
+    networks:
+      - airflow
+
+  airflow:
+    image: bitnami/airflow:latest
+    restart: on-failure
+    environment:
+        AIRFLOW_FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+        AIRFLOW_SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+        AIRFLOW_EXECUTOR: ${AIRFLOW_EXECUTOR}
+        AIRFLOW_DATABASE_NAME: ${AIRFLOW_DATABASE_NAME}
+        AIRFLOW_DATABASE_USERNAME: ${AIRFLOW_DATABASE_USERNAME}
+        AIRFLOW_DATABASE_PASSWORD: ${AIRFLOW_DATABASE_PASSWORD}
+        AIRFLOW_USERNAME: ${AIRFLOW_USERNAME}
+        AIRFLOW_PASSWORD: ${AIRFLOW_PASSWORD}
+        AIRFLOW_EMAIL: ${AIRFLOW_EMAIL}
+    volumes:
+      - ../src:/opt/bitnami/airflow/dags
+      - ../src/dags:/opt/bitnami/airflow/dags
+      - ./:/bitnami/python
+    env_file:
+      - ./.env
+    ports:
+      - '8080:8080'
+    networks:
+      - airflow
+
+volumes:
+  postgres:
+  redis:
+
+networks:
+  airflow:
