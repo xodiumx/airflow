@@ -45,4 +45,8 @@ docker-compose up -d
 ```
 cd src/dags
 ```
-- If you need to add additional requirements to your airflow you can add them to the requirements file in `cd airflow/` they will be installed when `docker-compose` is initialized.
+- If you need to add additional requirements to your airflow you can add them to the requirements file in:
+```
+cd airflow/
+```
+they will be installed when `docker-compose` is initialized.
